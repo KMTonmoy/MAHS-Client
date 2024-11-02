@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 const Bangladesh = () => {
   const bulletPoints = [
-    "Established in 1990",
+    "Established in 1970",
     "Offers a wide range of subjects",
     "Experienced and dedicated teachers",
     "Focus on student development",
