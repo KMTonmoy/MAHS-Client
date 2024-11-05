@@ -138,7 +138,7 @@ const Page = () => {
         </div>
         <p className="mt-5 text-center text-gray-600">
           Do not have an account?{' '}
-          <Link href="/Signup" className="text-[#f0652b] hover:underline">
+          <Link to="/Signup" className="text-[#f0652b] hover:underline">
             Sign up
           </Link>
         </p>

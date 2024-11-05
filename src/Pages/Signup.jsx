@@ -1,10 +1,85 @@
-"use client";
-import Lottie from "lottie-react";
-import regAnimation from "../../public/reg.json";
-import React from "react";
-import { Link } from "react-router-dom";
+'use client';
+import Lottie from 'lottie-react';
+import regAnimation from '../../public/reg.json';
+import React, { useContext, useState } from 'react';
+import Swal from 'sweetalert2';
+import { imageUpload } from '../api/utils';
+import useAxiosPublic from '../Hooks/useAxiosPublic';
+import { AuthContext } from '../Provider/AuthProvider';
+import { Link } from 'react-router-dom';
  
-const Signup = () => {
+
+const Page = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  // const [phone, setPhone] = useState('');
+  const [image, setImage] = useState(null);
+ 
+  const axiosPublic = useAxiosPublic();
+
+
+  const { createUser, updateUserProfile, signInWithGoogle } = useContext(AuthContext);
+
+  const handleProfilePicChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImage(file);
+    }
+  };
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+
+    if (!image) {
+      Swal.fire({
+        title: 'Profile Picture Required',
+        text: 'Please upload a profile picture.',
+        icon: 'warning',
+        confirmButtonText: 'OK',
+      });
+      return;
+    }
+
+
+
+
+    try {
+     const imageUrl = await imageUpload(image);
+      await createUser(email, password);
+      await updateUserProfile(name, imageUrl);
+      Swal.fire({
+        title: 'Signup Successful',
+        text: 'You have successfully signed up.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+      });
+    } catch (err) {
+      Swal.fire({
+        title: 'Signup Failed',
+        text: err.message || 'An unexpected error occurred. Please try again.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithGoogle();
+      if (result && result.user) {
+        const userInfo = {
+          email: result.user.email || '', 
+          name: result.user.displayName || '', 
+        };
+        await axiosPublic.post('/users', userInfo);
+      }
+    } catch (error) {
+      console.error('Error during Google sign-in:', error); 
+      setError(`Google sign-in failed: ${error.message || 'Unknown error'}`);
+    }
+  };
+
   return (
     <div className="min-h-screen flex justify-center items-center py-10 px-5">
       <div className="w-full max-w-xl">
@@ -15,7 +90,7 @@ const Signup = () => {
           Create Your Account
         </h2>
 
-        <form>
+        <form onSubmit={handleSignup}>
           <div className="mb-4">
             <label className="block text-gray-700 mb-2" htmlFor="name">
               Full Name
@@ -23,6 +98,8 @@ const Signup = () => {
             <input
               type="text"
               id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#f0652b]"
               placeholder="Your Full Name"
               required
@@ -36,11 +113,15 @@ const Signup = () => {
             <input
               type="email"
               id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#f0652b]"
               placeholder="Your Email"
               required
             />
           </div>
+
+          
 
           <div className="mb-4">
             <label className="block text-gray-700 mb-2" htmlFor="password">
@@ -49,6 +130,8 @@ const Signup = () => {
             <input
               type="password"
               id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#f0652b]"
               placeholder="Your Password"
               required
@@ -63,6 +146,7 @@ const Signup = () => {
               type="file"
               id="profile-pic"
               accept="image/*"
+              onChange={handleProfilePicChange}
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#f0652b]"
               required
             />
@@ -74,14 +158,10 @@ const Signup = () => {
           >
             Sign Up
           </button>
+         
         </form>
-
-        {/* Google Login Button */}
-        <div className="mt-4">
-          <button
-            className="w-full flex items-center justify-center py-3 text-white bg-[#1E3A8A] rounded-lg transition-colors duration-300 hover:bg-[#1e40af]"
-            onClick={() => {/* Add your Google login functionality here */}}
-          >
+        <div>
+        <button onClick={handleGoogleLogin} className="max-w-[320px] flex items-center justify-center mx-auto mt-4 py-2 px-5 text-sm font-bold text-center uppercase rounded-md border border-[rgba(50,50,80,0.25)] gap-3 text-white bg-[rgb(50,50,80)] cursor-pointer transition-all duration-600 ease-in-out hover:scale-[1.02] hover:bg-[rgb(90,90,120)] hover:shadow-[0_2px_4px_rgba(90,90,120,0.1)] focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,0,40,0.3)] active:scale-[0.98] active:opacity-80 md:max-w-full">
             <svg
               viewBox="0 0 256 262"
               preserveAspectRatio="xMidYMid"
@@ -110,7 +190,7 @@ const Signup = () => {
         </div>
 
         <p className="mt-5 text-center text-gray-600">
-          Already have an account?{" "}
+          Already have an account?{' '}
           <Link to="/login" className="text-[#f0652b] hover:underline">
             Log In
           </Link>
@@ -120,4 +200,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default Page;

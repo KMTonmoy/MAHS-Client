@@ -1,13 +1,18 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "../assets/Logo.png";
+import { AuthContext } from "../Provider/AuthProvider";
 
 const Navbar = () => {
   const [isAcademicOpen, setIsAcademicOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const academicRef = useRef(null);
   const userMenuRef = useRef(null);
+  const { user ,logOut} = useContext(AuthContext)
+  
+  console.log(user)
+
 
   const toggleAcademicMenu = () => setIsAcademicOpen(!isAcademicOpen);
   const toggleUserMenu = () => setIsUserMenuOpen(!isUserMenuOpen);
@@ -114,30 +119,47 @@ const Navbar = () => {
 
         {/* Login/Signup Buttons */}
         <div className="hidden md:flex space-x-4">
-          <motion.div
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            whileTap={{ scale: 0.9 }}
-            transition={{ type: "spring", stiffness: 300 }}
+          {user ? (
+            <>
+                  <motion.div
+          whileHover={{ scale: 1.1, rotate: 5 }}
+          whileTap={{ scale: 0.9 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <button
+ onClick={()=>logOut() }         
+            className="bg-[#ff4b4b] text-[#ffffff] px-5 py-2 rounded-md hover:bg-[#d63333] shadow-md"
           >
-            <Link
-              to="/login"
-              className="bg-[#ff4b4b] text-[#ffffff] px-5 py-2 rounded-md hover:bg-[#d63333] shadow-md"
-            >
-              Login
-            </Link>
-          </motion.div>
+            Logout
+          </button>
+        </motion.div>
+            </>
+          ): (<>
           <motion.div
-            whileHover={{ scale: 1.1, rotate: -5 }}
-            whileTap={{ scale: 0.9 }}
-            transition={{ type: "spring", stiffness: 300 }}
+          whileHover={{ scale: 1.1, rotate: 5 }}
+          whileTap={{ scale: 0.9 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <Link
+            to="/login"
+            className="bg-[#ff4b4b] text-[#ffffff] px-5 py-2 rounded-md hover:bg-[#d63333] shadow-md"
           >
-            <Link
-              to="/signup"
-              className="bg-[#32cd32] text-[#ffffff] px-5 py-2 rounded-md hover:bg-[#28a745] shadow-md"
-            >
-              Sign Up
-            </Link>
-          </motion.div>
+            Login
+          </Link>
+        </motion.div>
+        <motion.div
+          whileHover={{ scale: 1.1, rotate: -5 }}
+          whileTap={{ scale: 0.9 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <Link
+            to="/signup"
+            className="bg-[#32cd32] text-[#ffffff] px-5 py-2 rounded-md hover:bg-[#28a745] shadow-md"
+          >
+            Sign Up
+          </Link>
+        </motion.div>
+ </>)}
         </div>
 
         {/* Mobile User Menu */}
@@ -226,7 +248,19 @@ const Navbar = () => {
                       </li>
                     )
                   )}
-                  <li className="border-t mt-4 pt-4">
+                  {
+                   user ? (<>
+          <li className="border-t mt-4 pt-4">
+                    <button
+                      onClick={()=>logOut()}
+                      className="block px-6 py-3 text-center bg-[#ff4b4b] text-[#ffffff] rounded-md hover:bg-[#d63333] shadow-md my-2"
+                    >
+                      Logout
+                    </button>
+                  </li>
+                    </>) : (
+                        <>
+                          <li className="border-t mt-4 pt-4">
                     <Link
                       to="/login"
                       className="block px-6 py-3 text-center bg-[#ff4b4b] text-[#ffffff] rounded-md hover:bg-[#d63333] shadow-md my-2"
@@ -241,7 +275,9 @@ const Navbar = () => {
                     >
                       Sign Up
                     </Link>
-                  </li>
+                  </li></>
+                    )
+                }
                 </ul>
               </motion.div>
             )}
