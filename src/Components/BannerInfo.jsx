@@ -12,17 +12,17 @@ const BannerInfo = () => {
     {
       title: "Total Students",
       count: totalStudents,
-      icon: <FaUserGraduate className="text-6xl mb-2 text-blue-500" />,
+      icon:'👨‍🎓',
     },
     {
       title: "Total Teachers",
       count: totalTeachers,
-      icon: <FaChalkboardTeacher className="text-6xl mb-2 text-green-500" />,
+      icon:'🧑‍🏫',
     },
     {
       title: "Total Successful Students",
       count: totalSuccessStudents,
-      icon: <FaTrophy className="text-6xl mb-2 text-yellow-500" />,
+      icon:'🏆',
     },
   ];
 
@@ -36,11 +36,12 @@ const BannerInfo = () => {
       {cardData.map((card, index) => (
         <motion.div
           key={index}
-          className="flex bg-white w-full sm:w-[300px] md:w-[400px] justify-evenly shadow-lg rounded-lg p-6 text-center items-center gap-5"
+          className="flex bg-white w-full sm:w-[300px] md:w-[400px] text-5xl justify-evenly shadow-lg rounded-lg p-6 text-center items-center gap-5"
           variants={cardVariants}
           initial="hidden"
           animate="visible"
           transition={{ duration: 0.5, delay: index * 0.2 }}
+
         >
           {card.icon}
           <div>

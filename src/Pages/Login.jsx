@@ -1,26 +1,57 @@
-"use client";
-import Lottie from "lottie-react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import animation from "../../public/login.json";
+'use client';
+import Lottie from 'lottie-react';
+ 
+import loginAnimation from '../../public/login.json';
+import { useContext, useState } from 'react';
+ import { Link } from 'react-router-dom';
+import useAxiosPublic from '../Hooks/useAxiosPublic';
+import { AuthContext } from '../Provider/AuthProvider';
+ 
 
-const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const Page = () => {
+  const { signIn, signInWithGoogle, user } = useContext(AuthContext);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const axiosPublic = useAxiosPublic();
+ 
+
+  const handleLogin = async e => {
     e.preventDefault();
-    // Remove authentication logic here, as this is a dummy form
-    console.log("Email:", email, "Password:", password);
-    // You can add form validation or submission logic if needed
+    setError(null);
+    setLoading(true);
+    try {
+      await signIn(email, password);
+      
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithGoogle();
+      if (result && result.user) {
+        const userInfo = {
+          email: result.user.email || '', // Fallback to empty string if email is undefined
+          name: result.user.displayName || '', // Fallback to empty string if displayName is undefined
+        };
+        await axiosPublic.post('/users', userInfo);
+      }
+    } catch (error) {
+      console.error('Error during Google sign-in:', error); // Log the full error object
+      setError(`Google sign-in failed: ${error.message || 'Unknown error'}`); // Better error message for users
+    }
   };
 
   return (
     <div className="min-h-screen   flex justify-center items-center">
       <div>
-        <Lottie animationData={animation} loop={true} />
+        <Lottie animationData={loginAnimation} loop={true} />
       </div>
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold mb-6 text-center text-[#25527E]">
@@ -39,7 +70,7 @@ const Login = () => {
               type="email"
               id="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               required
               className="w-full px-4 py-2 border rounded-md"
               placeholder="Your Email"
@@ -56,7 +87,7 @@ const Login = () => {
               type="password"
               id="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               required
               className="w-full px-4 py-2 border rounded-md"
               placeholder="Your Password"
@@ -66,20 +97,18 @@ const Login = () => {
             type="submit"
             className={`w-full py-2 px-4 font-semibold text-white rounded-md ${
               loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-[#22C55E] text-white font-semibold rounded-lg hover:bg-[#25a755] duration-700"
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-[#22C55E] text-white font-semibold rounded-lg hover:bg-[#25a755]  duration-700'
             }`}
             disabled={loading}
           >
-            {loading ? "Logging in..." : "Log In"}
+            {loading ? 'Logging in...' : 'Log In'}
           </button>
         </form>
         <div>
           <button
-            className="mt-5 w-full flex items-center justify-center py-3 text-white bg-[#1E3A8A] rounded-lg transition-colors duration-300 hover:bg-[#1e40af]"
-            onClick={() => {
-              /* Add your Google login functionality here */
-            }}
+            onClick={handleGoogleLogin}
+            className="max-w-[320px] flex items-center justify-center mx-auto mt-4 py-2 px-5 text-sm font-bold text-center uppercase rounded-md border border-[rgba(50,50,80,0.25)] gap-3 text-white bg-[rgb(50,50,80)] cursor-pointer transition-all duration-600 ease-in-out hover:scale-[1.02] hover:bg-[rgb(90,90,120)] hover:shadow-[0_2px_4px_rgba(90,90,120,0.1)] focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,0,40,0.3)] active:scale-[0.98] active:opacity-80 md:max-w-full"
           >
             <svg
               viewBox="0 0 256 262"
@@ -108,7 +137,7 @@ const Login = () => {
           </button>
         </div>
         <p className="mt-5 text-center text-gray-600">
-          Do not have an account?{" "}
+          Do not have an account?{' '}
           <Link href="/Signup" className="text-[#f0652b] hover:underline">
             Sign up
           </Link>
@@ -118,4 +147,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Page;
